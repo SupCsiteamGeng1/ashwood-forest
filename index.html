@@ -5,70 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ashwood 3D</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+Thai:wght@400;600&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #050806; color: #ead9b0; font-family: 'Noto Sans Thai', sans-serif; user-select: none; }
-  canvas { display: block; }
-  #hud { position: fixed; inset: 0; pointer-events: none; }
-  #top { display: flex; justify-content: space-between; padding: 14px; }
-  .panel { pointer-events: auto; background: rgba(8,10,7,.82); border: 1px solid rgba(201,162,39,.35); padding: 10px 14px; min-width: 250px; }
-  .name { font-family: Cinzel, serif; font-size: 18px; color: #f3e6c4; }
-  .bar { height: 10px; background: #16140f; margin: 3px 0 6px; }
-  .bar i { display: block; height: 100%; }
-  #hpFill { background: #c23b2e; width: 100%; }
-  #mpFill { background: #3a6aa8; width: 100%; }
-  #expFill { background: #d4a017; width: 0%; }
-  #hint { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #c9b27a; text-shadow: 0 2px 8px #000; }
-  #skills { position: fixed; left: 14px; bottom: 14px; display: flex; gap: 8px; pointer-events: auto; }
-  .sk { width: 54px; height: 54px; background: #16140f; border: 1px solid #6a5420; color: #ead9b0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
-  .sk b { font-family: Cinzel, serif; color: #c9a227; font-size: 14px; }
-  #log { position: fixed; right: 14px; bottom: 14px; width: 300px; max-height: 120px; overflow: hidden; font-size: 12px; background: rgba(8,10,7,.82); padding: 8px; pointer-events: none; }
-  #log .gold { color: #f0c14a; } #log .dmg { color: #ff6b5a; } #log .sys { color: #c9b27a; }
-  #statModal, #deadModal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); pointer-events: auto; }
-  #statModal.show, #deadModal.show { display: flex; }
-  .modal { width: 400px; background: #12140f; border: 1px solid #c9a227; padding: 18px; }
-  .modal h2 { font-family: Cinzel, serif; color: #c9a227; margin-bottom: 8px; }
-  .row { display: grid; grid-template-columns: 60px 1fr 40px 32px; gap: 8px; margin: 8px 0; align-items: center; }
-  .row button, .btn { background: #2a2414; color: #c9a227; border: 1px solid #6a5420; height: 28px; cursor: pointer; }
-  .btn { margin-top: 12px; padding: 8px 16px; height: auto; }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+Thai:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#050806;color:#ead9b0;font-family:'Noto Sans Thai',sans-serif;user-select:none}
+#hud{position:fixed;inset:0;pointer-events:none}
+.panel{pointer-events:auto;background:rgba(8,10,7,.82);border:1px solid rgba(201,162,39,.35);padding:10px 14px;margin:14px;min-width:250px}
+.name{font-family:Cinzel,serif;font-size:18px}
+.bar{height:10px;background:#16140f;margin:3px 0 6px}.bar i{display:block;height:100%}
+#hpFill{background:#c23b2e;width:100%}#mpFill{background:#3a6aa8;width:100%}#expFill{background:#d4a017;width:0}
+#hint{position:fixed;top:14px;left:50%;transform:translateX(-50%);font-size:12px;color:#c9b27a}
+#skills{position:fixed;left:14px;bottom:14px;display:flex;gap:8px;pointer-events:auto}
+.sk{width:54px;height:54px;background:#16140f;border:1px solid #6a5420;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;cursor:pointer}
+.sk b{font-family:Cinzel,serif;color:#c9a227}
+#log{position:fixed;right:14px;bottom:14px;width:280px;max-height:110px;overflow:hidden;font-size:12px;background:rgba(8,10,7,.82);padding:8px}
+#log .gold{color:#f0c14a}#log .dmg{color:#ff6b5a}#log .sys{color:#c9b27a}
+#statModal,#deadModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);pointer-events:auto}
+#statModal.show,#deadModal.show{display:flex}
+.modal{width:380px;background:#12140f;border:1px solid #c9a227;padding:18px}
+.row{display:grid;grid-template-columns:60px 1fr 40px 32px;gap:8px;margin:8px 0;align-items:center}
+.row button,.btn{background:#2a2414;color:#c9a227;border:1px solid #6a5420;height:28px;cursor:pointer}
+.btn{margin-top:12px;padding:8px 16px;height:auto}
 </style>
 </head>
 <body>
-<div id="hud">
-  <div id="top">
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between"><span class="name">นักล่าปีศาจ</span><span>Lv. <b id="lvl">1</b></span></div>
-      <div>HP <span id="hpTxt"></span><div class="bar"><i id="hpFill"></i></div></div>
-      <div>MP <span id="mpTxt"></span><div class="bar"><i id="mpFill"></i></div></div>
-      <div>EXP <span id="expTxt"></span><div class="bar"><i id="expFill"></i></div></div>
-      <div style="font-size:12px">STR <b id="sStr">8</b> · VIT <b id="sVit">8</b> · AGI <b id="sAgi">8</b> · INT <b id="sInt">6</b> · LUK <b id="sLuk">5</b> <span id="ptsLabel" style="color:#f0c14a"></span></div>
-    </div>
-  </div>
-</div>
-<div id="hint">WASD เดิน · เมาส์ขวาหมุนกล้อง · คลิกซ้ายโจมตี · 1-3 สกิล · C สถานะ · F5 เซฟ</div>
-<div id="skills">
-  <div class="sk" data-sk="1"><b>1</b>ฟาด</div>
-  <div class="sk" data-sk="2"><b>2</b>หมุนดาบ</div>
-  <div class="sk" data-sk="3"><b>3</b>พุ่ง</div>
-  <div class="sk" id="btnC"><b>C</b>สถานะ</div>
-  <div class="sk" id="btnSave"><b>F5</b>เซฟ</div>
-</div>
+<div id="hud"><div class="panel"><div style="display:flex;justify-content:space-between"><span class="name">Ashwood</span><span>Lv. <b id="lvl">1</b></span></div>
+<div>HP <span id="hpTxt"></span><div class="bar"><i id="hpFill"></i></div></div>
+<div>MP <span id="mpTxt"></span><div class="bar"><i id="mpFill"></i></div></div>
+<div>EXP <span id="expTxt"></span><div class="bar"><i id="expFill"></i></div></div>
+<div style="font-size:12px">STR <b id="sStr">8</b> VIT <b id="sVit">8</b> AGI <b id="sAgi">8</b> INT <b id="sInt">6</b> LUK <b id="sLuk">5</b> <span id="ptsLabel"></span></div></div></div>
+<div id="hint">WASD walk | Right-drag camera | Left click attack | 1-3 skills | C stats | F5 save</div>
+<div id="skills"><div class="sk" data-sk="1"><b>1</b>Hit</div><div class="sk" data-sk="2"><b>2</b>Spin</div><div class="sk" data-sk="3"><b>3</b>Dash</div><div class="sk" id="btnC"><b>C</b>Stats</div><div class="sk" id="btnSave"><b>F5</b>Save</div></div>
 <div id="log"></div>
-<div id="statModal"><div class="modal">
-  <h2>CHARACTER</h2>
-  <div>แต้มเหลือ: <b id="pts">0</b></div>
-  <div class="row"><span>STR</span><span>ดาเมจ</span><b id="mStr">8</b><button data-st="str">+</button></div>
-  <div class="row"><span>VIT</span><span>เลือด</span><b id="mVit">8</b><button data-st="vit">+</button></div>
-  <div class="row"><span>AGI</span><span>ความเร็ว</span><b id="mAgi">8</b><button data-st="agi">+</button></div>
-  <div class="row"><span>INT</span><span>มานา</span><b id="mInt">6</b><button data-st="int">+</button></div>
-  <div class="row"><span>LUK</span><span>คริ</span><b id="mLuk">5</b><button data-st="luk">+</button></div>
-  <button class="btn" id="closeStat">ปิด</button>
-</div></div>
-<div id="deadModal"><div class="modal" style="text-align:center">
-  <h2>YOU DIED</h2>
-  <button class="btn" id="revive">ฟื้นที่กองไฟ</button>
-</div></div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script type="module" src="./game3d.js"></script>
-</body>
-</html>
+<div id="statModal"><div class="modal"><h2>CHARACTER</h2><div>Points <b id="pts">0</b></div>
+<div class="row"><span>STR</span><span>ATK</span><b id="mStr">8</b><button data-st="str">+</button></div>
+<div class="row"><span>VIT</span><span>HP</span><b id="mVit">8</b><button data-st="vit">+</button></div>
+<div class="row"><span>AGI</span><span>SPD</span><b id="mAgi">8</b><button data-st="agi">+</button></div>
+<div class="row"><span>INT</span><span>MP</span><b id="mInt">6</b><button data-st="int">+</button></div>
+<div class="row"><span>LUK</span><span>CRIT</span><b id="mLuk">5</b><button data-st="luk">+</button></div>
+<button class="btn" id="closeStat">Close</button></div></div>
+<div id="deadModal"><div class="modal" style="text-align:center"><h2>YOU DIED</h2><button class="btn" id="revive">Revive</button></div></div>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script>
+const SAVE_KEY='ashwood-3d-save-v1';
+const logEl=document.getElementById('log');
+function log(msg,cls='sys'){const d=document.createElement('div');d.className=cls;d.textContent=msg;logEl.prepend(d);while(logEl.children.length>7)logEl.lastChild.remove();}
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b120e);scene.fog=new THREE.FogExp2(0x0b120e,0.018);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));document.body.prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0x8aa88a,0x1a1208,0.8));
+const sun=new THREE.DirectionalLight(0xffe6b0,1.1);sun.position.set(30,40,10);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),new THREE.MeshStandardMaterial({color:0x1d2a18}));ground.rotation.x=-Math.PI/2;scene.add(ground);
+function tree(x,z){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,1.6,6),new THREE.MeshStandardMaterial({color:0x3a2614}));t.position.y=.8;const l=new THREE.Mesh(new THREE.ConeGeometry(1.1,2.2,7),new THREE.MeshStandardMaterial({color:0x163016}));l.position.y=2.2;g.add(t,l);g.position.set(x,0,z);scene.add(g);}
+for(let i=0;i<80;i++){const a=Math.random()*Math.PI*2,r=8+Math.random()*70;tree(Math.cos(a)*r,Math.sin(a)*r);}
+function makeChar(color,s=1){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CapsuleGeometry(.28*s,.55*s,4,8),new THREE.MeshStandardMaterial({color}));b.position.y=.7*s;const h=new THREE.Mesh(new THREE.SphereGeometry(.22*s,10,8),new THREE.MeshStandardMaterial({color:0xc9a227}));h.position.y=1.25*s;g.add(b,h);return g;}
+const heroMesh=makeChar(0x2a2e38);scene.add(heroMesh);
+const sword=new THREE.Mesh(new THREE.BoxGeometry(.08,.08,1.1),new THREE.MeshStandardMaterial({color:0xd8c48a}));sword.position.set(.35,.85,.35);heroMesh.add(sword);
+const hero={x:0,z:0,yaw:0,lvl:1,exp:0,next:80,str:8,vit:8,agi:8,int:6,luk:5,pts:0,hp:0,maxHp:0,mp:0,maxMp:0,atkCd:0,dead:false};
+function recalc(){hero.maxHp=90+hero.vit*12+(hero.lvl-1)*8;hero.maxMp=28+hero.int*6;hero.hp=Math.min(hero.hp||hero.maxHp,hero.maxHp);hero.mp=Math.min(hero.mp||hero.maxMp,hero.maxMp);}recalc();hero.hp=hero.maxHp;hero.mp=hero.maxMp;
+const types=[{name:'Imp',color:0x6a2a22,hp:38,exp:18,spd:2.2,dmg:[4,8],s:.7},{name:'Wolf',color:0x3a3a44,hp:62,exp:28,spd:3.1,dmg:[7,12],s:.85},{name:'Brute',color:0x3d4a28,hp:120,exp:48,spd:1.5,dmg:[12,20],s:1.25},{name:'Wraith',color:0x4a5a72,hp:80,exp:36,spd:2.6,dmg:[8,14],s:.9}];
+const enemies=[];
+function spawn(k,n,r0){for(let i=0;i<n;i++){const t=types[k],a=Math.random()*Math.PI*2,r=r0+Math.random()*12,mesh=makeChar(t.color,t.s);mesh.position.set(Math.cos(a)*r,0,Math.sin(a)*r);scene.add(mesh);enemies.push({mesh,name:t.name,hp:t.hp,maxHp:t.hp,exp:t.exp,spd:t.spd,dmg:t.dmg,alive:true,atkCd:0,wander:Math.random()*6});}}
+spawn(0,6,14);spawn(1,5,22);spawn(2,3,30);spawn(3,4,38);
+const keys={};
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key==='c'||e.key==='C')toggleStats();if(e.key==='1')cast(1);if(e.key==='2')cast(2);if(e.key==='3')cast(3);if(e.key==='F5'){e.preventDefault();saveGame(true);}if(e.key==='F9'){e.preventDefault();loadGame(true);}});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let camYaw=.6,camPitch=.55,dragging=false;
+addEventListener('mousedown',e=>{if(e.button===2||e.button===1)dragging=true;if(e.button===0)swing();});
+addEventListener('mouseup',()=>dragging=false);
+addEventListener('mousemove',e=>{if(!dragging)return;camYaw-=e.movementX*0.005;camPitch=Math.max(.2,Math.min(1.2,camPitch+e.movementY*0.004));});
+addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+const skills={1:{cd:0,max:.35,mp:0},2:{cd:0,max:4,mp:12},3:{cd:0,max:5,mp:16}};
+function atk(){const crit=Math.random()<(0.05+hero.luk*0.008);return {d:Math.round((10+hero.str*2.2+hero.lvl)*(crit?1.8:1)*(0.9+Math.random()*0.22)),crit};}
+function nearest(range){let best=null,bd=range;for(const en of enemies){if(!en.alive)continue;const d=Math.hypot(en.mesh.position.x-hero.x,en.mesh.position.z-hero.z);if(d<bd){bd=d;best=en;}}return best;}
+function deal(en,dmg,crit){en.hp-=dmg;log((crit?'CRIT ':'')+dmg+' -> '+en.name,crit?'gold':'dmg');if(en.hp<=0){en.alive=false;en.mesh.visible=false;hero.exp+=en.exp;log(en.name+' +'+en.exp+' EXP','gold');while(hero.exp>=hero.next)levelUp();setTimeout(()=>{en.alive=true;en.hp=en.maxHp;en.mesh.visible=true;},14000);}}
+function swing(){if(hero.dead||hero.atkCd>0)return;hero.atkCd=Math.max(.28,.5-hero.agi*0.01);const a=atk(),en=nearest(3.2);if(en)deal(en,a.d,a.crit);else log('miss','sys');}
+function whirl(){const a=atk();for(const en of enemies){if(!en.alive)continue;if(Math.hypot(en.mesh.position.x-hero.x,en.mesh.position.z-hero.z)<5)deal(en,Math.round(a.d*1.3),a.crit);}}
+function dash(){hero.x+=Math.sin(hero.yaw)*6;hero.z+=Math.cos(hero.yaw)*6;const a=atk(),en=nearest(4);if(en)deal(en,Math.round(a.d*1.55),a.crit);}
+function cast(id){if(hero.dead)return;const s=skills[id];if(!s||s.cd>0)return;if(hero.mp<s.mp){log('no MP','sys');return;}hero.mp-=s.mp;s.cd=s.max;if(id===1)swing();if(id===2)whirl();if(id===3)dash();}
+function levelUp(){hero.exp-=hero.next;hero.lvl++;hero.next=Math.round(70*Math.pow(1.22,hero.lvl-1));hero.pts+=5;recalc();hero.hp=hero.maxHp;hero.mp=hero.maxMp;log('LEVEL UP '+hero.lvl,'gold');document.getElementById('statModal').classList.add('show');refreshStats();}
+function saveGame(m){localStorage.setItem(SAVE_KEY,JSON.stringify({hero:{x:hero.x,z:hero.z,lvl:hero.lvl,exp:hero.exp,next:hero.next,str:hero.str,vit:hero.vit,agi:hero.agi,int:hero.int,luk:hero.luk,pts:hero.pts,hp:hero.hp,mp:hero.mp}}));if(m)log('saved','gold');}
+function loadGame(m){const raw=localStorage.getItem(SAVE_KEY);if(!raw){if(m)log('no save','sys');return;}Object.assign(hero,JSON.parse(raw).hero);recalc();hero.dead=false;if(m)log('loaded Lv.'+hero.lvl,'gold');}
+loadGame(false);setInterval(()=>{if(!hero.dead)saveGame(false);},10000);
+document.getElementById('revive').onclick=()=>{hero.dead=false;hero.x=0;hero.z=0;hero.hp=hero.maxHp*.6;document.getElementById('deadModal').classList.remove('show');};
+function toggleStats(){document.getElementById('statModal').classList.toggle('show');refreshStats();}
+function refreshStats(){document.getElementById('pts').textContent=hero.pts;document.getElementById('mStr').textContent=hero.str;document.getElementById('mVit').textContent=hero.vit;document.getElementById('mAgi').textContent=hero.agi;document.getElementById('mInt').textContent=hero.int;document.getElementById('mLuk').textContent=hero.luk;document.querySelectorAll('.row button').forEach(b=>b.disabled=hero.pts<=0);}
+document.getElementById('closeStat').onclick=()=>document.getElementById('statModal').classList.remove('show');
+document.querySelectorAll('.row button').forEach(b=>b.onclick=()=>{if(hero.pts<=0)return;hero[b.dataset.st]++;hero.pts--;recalc();refreshStats();});
+document.querySelectorAll('.sk').forEach(el=>el.onclick=()=>{if(el.id==='btnSave')saveGame(true);else if(el.id==='btnC')toggleStats();else cast(+el.dataset.sk);});
+log('Ashwood 3D ready','sys');
+const clock=new THREE.Clock();
+function tick(){
+const dt=Math.min(.05,clock.getDelta());requestAnimationFrame(tick);
+if(!hero.dead){
+hero.atkCd=Math.max(0,hero.atkCd-dt);for(const k of Object.keys(skills))skills[k].cd=Math.max(0,skills[k].cd-dt);
+let mx=0,mz=0;if(keys.w)mz+=1;if(keys.s)mz-=1;if(keys.a)mx-=1;if(keys.d)mx+=1;
+const spd=6+hero.agi*.12,fy=camYaw;
+if(mx||mz){const l=Math.hypot(mx,mz)||1;mx/=l;mz/=l;hero.x+=(Math.sin(fy)*mz+Math.cos(fy)*mx)*spd*dt;hero.z+=(Math.cos(fy)*mz-Math.sin(fy)*mx)*spd*dt;hero.yaw=Math.atan2(Math.sin(fy)*mz+Math.cos(fy)*mx,Math.cos(fy)*mz-Math.sin(fy)*mx);}
+hero.x=Math.max(-80,Math.min(80,hero.x));hero.z=Math.max(-80,Math.min(80,hero.z));
+hero.hp=Math.min(hero.maxHp,hero.hp+dt*(1.1+hero.vit*.08));hero.mp=Math.min(hero.maxMp,hero.mp+dt*(1.3+hero.int*.1));
+for(const en of enemies){if(!en.alive)continue;en.atkCd=Math.max(0,en.atkCd-dt);const dx=hero.x-en.mesh.position.x,dz=hero.z-en.mesh.position.z,d=Math.hypot(dx,dz);
+if(d<18){if(d>2.1){en.mesh.position.x+=dx/d*en.spd*dt;en.mesh.position.z+=dz/d*en.spd*dt;}else if(en.atkCd<=0){const dmg=en.dmg[0]+Math.floor(Math.random()*(en.dmg[1]-en.dmg[0]+1));hero.hp-=dmg;en.atkCd=1.2;log(en.name+' hit '+dmg,'dmg');if(hero.hp<=0){hero.dead=true;hero.hp=0;document.getElementById('deadModal').classList.add('show');}}}
+else{en.wander+=dt;en.mesh.position.x+=Math.cos(en.wander)*.6*dt;en.mesh.position.z+=Math.sin(en.wander*.7)*.6*dt;}}
+}
+heroMesh.position.set(hero.x,0,hero.z);heroMesh.rotation.y=hero.yaw;
+camera.position.set(hero.x+Math.sin(camYaw)*9*Math.cos(camPitch-.2),2.2+Math.sin(camPitch)*8,hero.z+Math.cos(camYaw)*9*Math.cos(camPitch-.2));
+camera.lookAt(hero.x,1.1,hero.z);
+document.getElementById('lvl').textContent=hero.lvl;
+document.getElementById('hpTxt').textContent=Math.floor(hero.hp)+'/'+hero.maxHp;
+document.getElementById('mpTxt').textContent=Math.floor(hero.mp)+'/'+hero.maxMp;
+document.getElementById('expTxt').textContent=Math.floor(hero.exp)+'/'+hero.next;
+document.getElementById('hpFill').style.width=(100*hero.hp/hero.maxHp)+'%';
+document.getElementById('mpFill').style.width=(100*hero.mp/hero.maxMp)+'%';
+document.getElementById('expFill').style.width=(100*hero.exp/hero.next)+'%';
+document.getElementById('sStr').textContent=hero.str;document.getElementById('sVit').textContent=hero.vit;document.getElementById('sAgi').textContent=hero.agi;document.getElementById('sInt').textContent=hero.int;document.getElementById('sLuk').textContent=hero.luk;
+document.getElementById('ptsLabel').textContent=hero.pts?('+'+hero.pts):'';
+renderer.render(scene,camera);
+}
+tick();
+</script>
+</body></html>
