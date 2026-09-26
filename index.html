@@ -13,7 +13,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 #skills{position:fixed;left:16px;bottom:16px;display:flex;gap:8px}
 .sk{width:58px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px}
 .sk b{font-family:Cinzel,serif;color:#f0c14a}
-#log{position:fixed;right:16px;bottom:16px;width:250px;max-height:110px;overflow:hidden;padding:8px;font-size:12px}
+#chatBtn{position:fixed;right:16px;bottom:16px;z-index:9;min-width:64px;height:40px;padding:0 12px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px}
+#log{position:fixed;right:16px;bottom:64px;width:250px;max-height:110px;overflow:auto;padding:8px;font-size:12px;display:none}
+#log.open{display:block}
 #log .gold{color:#f0c14a}#log .dmg{color:#ff7a6a}#log .sys{color:#c9b27a}
 #statModal,#deadModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55)}
 #statModal.show,#deadModal.show{display:flex}
@@ -21,11 +23,11 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .row{display:grid;grid-template-columns:60px 1fr 36px 34px;gap:8px;margin:8px 0;align-items:center}
 .row button,.btn{background:#2b2414;color:#f0c14a;border:1px solid #6a5420;border-radius:8px;height:30px}
 .btn{margin-top:12px;padding:8px 14px;height:auto}
-#joy{position:fixed;left:16px;bottom:90px;width:120px;height:120px;border-radius:50%;background:rgba(20,22,16,.45);border:2px solid rgba(212,175,55,.35);z-index:8}
-#joyKnob{position:absolute;left:40px;top:40px;width:40px;height:40px;border-radius:50%;background:rgba(240,193,74,.9)}
-#atkBtn{position:fixed;right:20px;bottom:96px;width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#f0c14a;z-index:8}
-@media(max-width:900px){#hint,#log{display:none}#panel{transform:scale(.9);transform-origin:top left}#skills{left:auto;right:10px;bottom:10px;width:150px;flex-wrap:wrap;justify-content:flex-end}.sk{width:64px;height:64px}#joy{bottom:20px;width:130px;height:130px}#atkBtn{bottom:168px}}
-@media(min-width:901px){#joy,#atkBtn{display:none}}
+#joy{position:fixed;left:16px;bottom:18px;width:128px;height:128px;border-radius:50%;background:rgba(20,22,16,.45);border:2px solid rgba(212,175,55,.35);z-index:8}
+#joyKnob{position:absolute;left:44px;top:44px;width:40px;height:40px;border-radius:50%;background:rgba(240,193,74,.9)}
+#atkBtn{position:fixed;right:14px;bottom:148px;width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#f0c14a;z-index:8}
+@media(max-width:900px){#hint{display:none}#panel{left:8px;top:8px;width:min(68vw,220px);padding:8px 10px}#panel .stats{display:none}.bar{height:8px}#skills{left:auto;right:8px;bottom:8px;width:132px;flex-wrap:wrap;justify-content:flex-end}.sk{width:60px;height:56px}#chatBtn{top:8px;bottom:auto;right:8px;height:34px}#log{top:46px;bottom:auto;right:8px;width:min(68vw,240px);max-height:26vh}}
+@media(min-width:901px){#joy,#atkBtn{display:none}#log{display:block}#chatBtn{display:none}}
 </style></head><body>
 <canvas id="cv"></canvas>
 <div id="joy"><div id="joyKnob"></div></div>
@@ -34,9 +36,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <div style="font-size:11px;display:flex;justify-content:space-between"><span>HP</span><span id="hpTxt"></span></div><div class="bar"><i id="hpFill"></i></div>
 <div style="font-size:11px;display:flex;justify-content:space-between"><span>MP</span><span id="mpTxt"></span></div><div class="bar"><i id="mpFill"></i></div>
 <div style="font-size:11px;display:flex;justify-content:space-between"><span>EXP</span><span id="expTxt"></span></div><div class="bar"><i id="expFill"></i></div>
-<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"><span class="chip">STR <b id="sStr">8</b></span><span class="chip">VIT <b id="sVit">8</b></span><span class="chip">AGI <b id="sAgi">8</b></span><span class="chip">INT <b id="sInt">6</b></span><span class="chip">LUK <b id="sLuk">5</b></span><span class="chip" id="ptsLabel" style="display:none;color:#f0c14a"></span></div></div>
-<div id="hint">WASD or joystick · ATK / 1 hit · 2 spin · 3 dash · C stats</div>
-<div id="skills"><div class="sk glass" data-sk="1"><b>1</b>Hit</div><div class="sk glass" data-sk="2"><b>2</b>Spin</div><div class="sk glass" data-sk="3"><b>3</b>Dash</div><div class="sk glass" id="btnC"><b>C</b>Stats</div><div class="sk glass" id="btnSave"><b>F5</b>Save</div></div>
+<div class="stats" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"><span class="chip">STR <b id="sStr">8</b></span><span class="chip">VIT <b id="sVit">8</b></span><span class="chip">AGI <b id="sAgi">8</b></span><span class="chip">INT <b id="sInt">6</b></span><span class="chip">LUK <b id="sLuk">5</b></span><span class="chip" id="ptsLabel" style="display:none;color:#f0c14a"></span></div></div>
+<div id="hint">WASD · ATK · skills · C stats</div>
+<div id="skills"><div class="sk glass" data-sk="1"><b>1</b>Hit</div><div class="sk glass" data-sk="2"><b>2</b>Spin</div><div class="sk glass" data-sk="3"><b>3</b>Dash</div><div class="sk glass" id="btnC"><b>C</b>Stats</div><div class="sk glass" id="btnSave"><b>SV</b>Save</div></div>
+<div id="chatBtn" class="glass">Chat</div>
 <div id="log" class="glass"></div>
 <div id="statModal"><div class="modal glass"><h2>CHARACTER</h2><div>Points <b id="pts">0</b></div>
 <div class="row"><span>STR</span><span>ATK</span><b id="mStr">8</b><button data-st="str">+</button></div>
@@ -61,7 +64,7 @@ const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 const stick={mx:0,my:0,active:false};const joy=document.getElementById('joy'),knob=document.getElementById('joyKnob');
 function setStick(x,y){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=x-cx,dy=y-cy;const max=r.width*0.32,l=Math.hypot(dx,dy)||1;if(l>max){dx=dx/l*max;dy=dy/l*max;}knob.style.left=(r.width/2-20+dx)+'px';knob.style.top=(r.height/2-20+dy)+'px';stick.mx=dx/max;stick.my=dy/max;}
-function endStick(){stick.active=false;stick.mx=0;stick.my=0;knob.style.left='40px';knob.style.top='40px';}
+function endStick(){stick.active=false;stick.mx=0;stick.my=0;knob.style.left='44px';knob.style.top='44px';}
 joy.addEventListener('pointerdown',e=>{e.preventDefault();joy.setPointerCapture(e.pointerId);stick.active=true;setStick(e.clientX,e.clientY);});
 joy.addEventListener('pointermove',e=>{if(stick.active)setStick(e.clientX,e.clientY);});
 joy.addEventListener('pointerup',endStick);joy.addEventListener('pointercancel',endStick);
@@ -76,16 +79,17 @@ function swing(){if(hero.dead||hero.atkCd>0)return;hero.atkCd=Math.max(.26,.48-h
 function whirl(){const a=atk();for(const en of enemies){if(!en.alive)continue;if(Math.hypot(en.x-hero.x,en.y-hero.y)<3.3)deal(en,Math.round(a.d*1.28),a.crit);}hero.swing=0.28;}
 function dash(){hero.x+=Math.cos(hero.dir)*2.3;hero.y+=Math.sin(hero.dir)*2.3;const a=atk(),en=nearest(2.6);if(en)deal(en,Math.round(a.d*1.5),a.crit);}
 function cast(id){if(hero.dead)return;const s=skills[id];if(!s||s.cd>0)return;if(hero.mp<s.mp){log('no MP','sys');return;}hero.mp-=s.mp;s.cd=s.max;if(id===1)swing();if(id===2)whirl();if(id===3)dash();}
-function levelUp(){hero.exp-=hero.next;hero.lvl++;hero.next=Math.round(70*Math.pow(1.22,hero.lvl-1));hero.pts+=5;recalc();hero.hp=hero.maxHp;hero.mp=hero.maxMp;log('LEVEL UP '+hero.lvl,'gold');document.getElementById('statModal').classList.add('show');refreshStats();}
+function levelUp(){hero.exp-=hero.next;hero.lvl++;hero.next=Math.round(70*Math.pow(1.22,hero.lvl-1));hero.pts+=5;recalc();hero.hp=hero.maxHp;hero.mp=hero.maxMp;document.getElementById('statModal').classList.add('show');refreshStats();}
 function saveGame(m){try{localStorage.setItem('ashwood-25d-v2',JSON.stringify(hero));if(m)log('saved','gold');}catch(e){}}
-function loadGame(m){try{const raw=localStorage.getItem('ashwood-25d-v2');if(!raw){if(m)log('no save','sys');return;}Object.assign(hero,JSON.parse(raw));recalc();hero.dead=false;if(m)log('loaded Lv.'+hero.lvl,'gold');}catch(e){}}
-loadGame(false);setInterval(()=>{if(!hero.dead)saveGame(false);},10000);
+function loadGame(){try{const raw=localStorage.getItem('ashwood-25d-v2');if(!raw)return;Object.assign(hero,JSON.parse(raw));recalc();hero.dead=false;}catch(e){}}
+loadGame();setInterval(()=>{if(!hero.dead)saveGame(false);},10000);
 document.getElementById('revive').onclick=()=>{hero.dead=false;hero.x=22;hero.y=22;hero.hp=hero.maxHp*.6;document.getElementById('deadModal').classList.remove('show');};
 function toggleStats(){document.getElementById('statModal').classList.toggle('show');refreshStats();}
 function refreshStats(){document.getElementById('pts').textContent=hero.pts;document.getElementById('mStr').textContent=hero.str;document.getElementById('mVit').textContent=hero.vit;document.getElementById('mAgi').textContent=hero.agi;document.getElementById('mInt').textContent=hero.int;document.getElementById('mLuk').textContent=hero.luk;document.querySelectorAll('.row button').forEach(b=>b.disabled=hero.pts<=0);}
 document.getElementById('closeStat').onclick=()=>document.getElementById('statModal').classList.remove('show');
 document.querySelectorAll('.row button').forEach(b=>b.onclick=()=>{if(hero.pts<=0)return;hero[b.dataset.st]++;hero.pts--;recalc();refreshStats();});
 document.querySelectorAll('.sk').forEach(el=>el.onclick=()=>{if(el.id==='btnSave')saveGame(true);else if(el.id==='btnC')toggleStats();else cast(+el.dataset.sk);});
+document.getElementById('chatBtn').onclick=()=>document.getElementById('log').classList.toggle('open');
 function w2s(x,y){return {x:(x-hero.x)*TILE+cv.width/2,y:(y-hero.y)*TILE+cv.height/2};}
 function ellipse(x,y,rx,ry,col){ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function drawTree(t){const p=w2s(t.x,t.y);ellipse(p.x,p.y+10,10,5,'rgba(0,0,0,.28)');ctx.fillStyle='#4a3016';ctx.fillRect(p.x-5,p.y-16,10,26);ctx.fillStyle=t.k?'#1f5a2a':'#163f1e';ctx.beginPath();ctx.arc(p.x,p.y-28,17,0,Math.PI*2);ctx.fill();}
@@ -95,8 +99,8 @@ if(en.id==='wolf'){ellipse(0,2,16,9,'#4a4d5c');ellipse(12,-2,10,6,'#3a3d4a');}
 else if(en.id==='boar'){ellipse(0,4,15,10,'#6a3d28');ellipse(12,2,9,7,'#5a3020');}
 else if(en.id==='bear'){ellipse(0,2,18,13,'#5a3a22');ellipse(0,-10,10,8,'#4a2e1a');}
 else if(en.id==='fox'){ellipse(0,3,12,7,'#c45a28');ellipse(10,0,8,5,'#b44a20');}
-else if(en.id==='stag'){ellipse(0,3,14,9,'#8a5a32');ctx.strokeStyle='#d8c48a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(8,-8);ctx.lineTo(6,-20);ctx.stroke();}
-else {ellipse(0,2,11,8,'#3a3a48');ctx.fillStyle='#c9c3b0';ctx.beginPath();ctx.ellipse(-6,-8,5,7,-.3,0,Math.PI*2);ctx.ellipse(6,-8,5,7,.3,0,Math.PI*2);ctx.fill();}
+else if(en.id==='stag'){ellipse(0,3,14,9,'#8a5a32');}
+else {ellipse(0,2,11,8,'#3a3a48');}
 ctx.restore();ctx.fillStyle='#111';ctx.fillRect(p.x-16,p.y-28,32,5);ctx.fillStyle='#d24a3a';ctx.fillRect(p.x-16,p.y-28,32*(en.hp/en.maxHp),5);ctx.fillStyle='#f3e6c0';ctx.font='11px Tahoma';ctx.textAlign='center';ctx.fillText(en.name,p.x,p.y+24);}
 let last=performance.now();
 function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimationFrame(tick);
