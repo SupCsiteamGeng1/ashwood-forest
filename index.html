@@ -3,75 +3,72 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ashwood — Dark Forest</title>
+<title>Ashwood 3D</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap');
-  :root { --bg:#0b0d0a; --panel:rgba(12,14,10,.88); --gold:#c9a227; --text:#e8dcc0; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html,body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Noto Sans Thai',sans-serif; user-select:none; }
-  canvas { display:block; width:100%; height:100%; cursor:crosshair; }
-  #hud { position:absolute; inset:0; pointer-events:none; display:grid; grid-template-rows:auto 1fr auto; }
-  #topbar,#bottom { display:flex; justify-content:space-between; padding:14px 18px; gap:12px; }
-  .panel { background:var(--panel); border:1px solid rgba(201,162,39,.35); padding:10px 14px; pointer-events:auto; }
-  .title { font-family:Cinzel,serif; color:var(--gold); font-size:13px; }
-  .name { font-family:Cinzel,serif; font-size:18px; }
-  .bar { height:10px; background:#1a1a16; }
-  .bar>i { display:block; height:100%; width:0; }
-  #hpFill { background:#c23b2e; } #mpFill { background:#3a6aa8; } #expFill { background:#d4a017; }
-  #minimap { width:148px; height:148px; background:#0a0c08; border:1px solid rgba(201,162,39,.4); }
-  .sk { width:52px; height:52px; background:#16140f; border:1px solid #6a5420; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:10px; position:relative; cursor:pointer; pointer-events:auto; }
-  .sk b { font-family:Cinzel,serif; color:var(--gold); }
-  .sk .cd { position:absolute; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; }
-  #skills { display:flex; gap:8px; }
-  #log { width:320px; max-height:120px; overflow:hidden; font-size:12px; background:var(--panel); padding:8px; }
-  #log .gold { color:#f0c14a; } #log .dmg { color:#ff6b5a; } #log .heal { color:#7dcc7a; } #log .sys { color:#c9b27a; }
-  #statModal,#deadModal { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55); pointer-events:auto; z-index:20; }
-  #statModal.show,#deadModal.show { display:flex; }
-  .modal { width:420px; background:#12140f; border:1px solid var(--gold); padding:18px 20px; }
-  .stat-row { display:grid; grid-template-columns:70px 1fr 40px 36px; gap:8px; margin:8px 0; align-items:center; }
-  .stat-row button { background:#2a2414; color:var(--gold); border:1px solid #6a5420; height:28px; cursor:pointer; }
-  .btn { margin-top:14px; background:#3a2c10; color:var(--gold); border:1px solid var(--gold); padding:8px 16px; cursor:pointer; }
-  #hintBar { position:absolute; left:50%; top:18px; transform:translateX(-50%); font-size:12px; color:#c9b27a; }
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+Thai:wght@400;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #050806; color: #ead9b0; font-family: 'Noto Sans Thai', sans-serif; user-select: none; }
+  canvas { display: block; }
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #top { display: flex; justify-content: space-between; padding: 14px; }
+  .panel { pointer-events: auto; background: rgba(8,10,7,.82); border: 1px solid rgba(201,162,39,.35); padding: 10px 14px; min-width: 250px; }
+  .name { font-family: Cinzel, serif; font-size: 18px; color: #f3e6c4; }
+  .bar { height: 10px; background: #16140f; margin: 3px 0 6px; }
+  .bar i { display: block; height: 100%; }
+  #hpFill { background: #c23b2e; width: 100%; }
+  #mpFill { background: #3a6aa8; width: 100%; }
+  #expFill { background: #d4a017; width: 0%; }
+  #hint { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #c9b27a; text-shadow: 0 2px 8px #000; }
+  #skills { position: fixed; left: 14px; bottom: 14px; display: flex; gap: 8px; pointer-events: auto; }
+  .sk { width: 54px; height: 54px; background: #16140f; border: 1px solid #6a5420; color: #ead9b0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
+  .sk b { font-family: Cinzel, serif; color: #c9a227; font-size: 14px; }
+  #log { position: fixed; right: 14px; bottom: 14px; width: 300px; max-height: 120px; overflow: hidden; font-size: 12px; background: rgba(8,10,7,.82); padding: 8px; pointer-events: none; }
+  #log .gold { color: #f0c14a; } #log .dmg { color: #ff6b5a; } #log .sys { color: #c9b27a; }
+  #statModal, #deadModal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); pointer-events: auto; }
+  #statModal.show, #deadModal.show { display: flex; }
+  .modal { width: 400px; background: #12140f; border: 1px solid #c9a227; padding: 18px; }
+  .modal h2 { font-family: Cinzel, serif; color: #c9a227; margin-bottom: 8px; }
+  .row { display: grid; grid-template-columns: 60px 1fr 40px 32px; gap: 8px; margin: 8px 0; align-items: center; }
+  .row button, .btn { background: #2a2414; color: #c9a227; border: 1px solid #6a5420; height: 28px; cursor: pointer; }
+  .btn { margin-top: 12px; padding: 8px 16px; height: auto; }
 </style>
 </head>
 <body>
-<div id="wrap" style="position:relative;width:100%;height:100%">
-<canvas id="game"></canvas>
 <div id="hud">
-  <div id="topbar">
+  <div id="top">
     <div class="panel">
-      <div style="display:flex;justify-content:space-between"><div class="name">นักล่าปีศาจ</div><div class="title">Lv. <span id="lvl">1</span></div></div>
-      <div><span>HP</span> <span id="hpTxt"></span><div class="bar"><i id="hpFill"></i></div></div>
-      <div><span>MP</span> <span id="mpTxt"></span><div class="bar"><i id="mpFill"></i></div></div>
-      <div><span>EXP</span> <span id="expTxt"></span><div class="bar"><i id="expFill"></i></div></div>
-      <div style="font-size:12px;margin-top:6px">STR <b id="sStr">8</b> · VIT <b id="sVit">8</b> · AGI <b id="sAgi">8</b> · INT <b id="sInt">6</b> · LUK <b id="sLuk">5</b> <span id="ptsLabel" style="color:#f0c14a"></span></div>
+      <div style="display:flex;justify-content:space-between"><span class="name">นักล่าปีศาจ</span><span>Lv. <b id="lvl">1</b></span></div>
+      <div>HP <span id="hpTxt"></span><div class="bar"><i id="hpFill"></i></div></div>
+      <div>MP <span id="mpTxt"></span><div class="bar"><i id="mpFill"></i></div></div>
+      <div>EXP <span id="expTxt"></span><div class="bar"><i id="expFill"></i></div></div>
+      <div style="font-size:12px">STR <b id="sStr">8</b> · VIT <b id="sVit">8</b> · AGI <b id="sAgi">8</b> · INT <b id="sInt">6</b> · LUK <b id="sLuk">5</b> <span id="ptsLabel" style="color:#f0c14a"></span></div>
     </div>
-    <div><div class="title" style="text-align:right">ASHWOOD FOREST</div><div id="minimap"><canvas id="mini"></canvas></div></div>
-  </div>
-  <div></div>
-  <div id="bottom">
-    <div id="skills">
-      <div class="sk" data-sk="1"><b>1</b>ฟาด<div class="cd"></div></div>
-      <div class="sk" data-sk="2"><b>2</b>หมุนดาบ<div class="cd"></div></div>
-      <div class="sk" data-sk="3"><b>3</b>พุ่งแทง<div class="cd"></div></div>
-      <div class="sk" data-sk="4"><b>C</b>สถานะ</div>
-      <div class="sk" id="btnSave"><b>F5</b>เซฟ</div>
-      <div class="sk" id="btnLoad"><b>F9</b>โหลด</div>
-    </div>
-    <div id="log"></div>
   </div>
 </div>
-<div id="hintBar">คลิกซ้ายเดิน · 1-3 สกิล · C สถานะ · F5 เซฟ · F9 โหลด</div>
-<div id="statModal"><div class="modal"><h2 class="title">CHARACTER</h2>
-<div>แต้มคงเหลือ: <b id="pts">0</b></div>
-<div class="stat-row"><span>STR</span><span>โจมตี</span><b id="mStr">8</b><button data-st="str">+</button></div>
-<div class="stat-row"><span>VIT</span><span>เลือด</span><b id="mVit">8</b><button data-st="vit">+</button></div>
-<div class="stat-row"><span>AGI</span><span>ความเร็ว</span><b id="mAgi">8</b><button data-st="agi">+</button></div>
-<div class="stat-row"><span>INT</span><span>มานา</span><b id="mInt">6</b><button data-st="int">+</button></div>
-<div class="stat-row"><span>LUK</span><span>คริ</span><b id="mLuk">5</b><button data-st="luk">+</button></div>
-<button class="btn" id="closeStat">ปิด</button></div></div>
-<div id="deadModal"><div class="modal" style="text-align:center"><h2 class="title">YOU DIED</h2><button class="btn" id="revive">ฟื้นที่กองไฟ</button></div></div>
+<div id="hint">WASD เดิน · เมาส์ขวาหมุนกล้อง · คลิกซ้ายโจมตี · 1-3 สกิล · C สถานะ · F5 เซฟ</div>
+<div id="skills">
+  <div class="sk" data-sk="1"><b>1</b>ฟาด</div>
+  <div class="sk" data-sk="2"><b>2</b>หมุนดาบ</div>
+  <div class="sk" data-sk="3"><b>3</b>พุ่ง</div>
+  <div class="sk" id="btnC"><b>C</b>สถานะ</div>
+  <div class="sk" id="btnSave"><b>F5</b>เซฟ</div>
 </div>
-<script src="game.js"></script>
+<div id="log"></div>
+<div id="statModal"><div class="modal">
+  <h2>CHARACTER</h2>
+  <div>แต้มเหลือ: <b id="pts">0</b></div>
+  <div class="row"><span>STR</span><span>ดาเมจ</span><b id="mStr">8</b><button data-st="str">+</button></div>
+  <div class="row"><span>VIT</span><span>เลือด</span><b id="mVit">8</b><button data-st="vit">+</button></div>
+  <div class="row"><span>AGI</span><span>ความเร็ว</span><b id="mAgi">8</b><button data-st="agi">+</button></div>
+  <div class="row"><span>INT</span><span>มานา</span><b id="mInt">6</b><button data-st="int">+</button></div>
+  <div class="row"><span>LUK</span><span>คริ</span><b id="mLuk">5</b><button data-st="luk">+</button></div>
+  <button class="btn" id="closeStat">ปิด</button>
+</div></div>
+<div id="deadModal"><div class="modal" style="text-align:center">
+  <h2>YOU DIED</h2>
+  <button class="btn" id="revive">ฟื้นที่กองไฟ</button>
+</div></div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module" src="./game3d.js"></script>
 </body>
 </html>
