@@ -212,12 +212,15 @@ function facingLeft(){const c=Math.cos(hero.dir);if(Math.abs(c)>0.22)faceLeft=c<
 function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);const file=src.split('/').pop().split('?')[0].replace(/\.png$/,'');const pref=src.includes('swordman-m')?'m:':src.includes('swordman/')?'f:':'';i.src=(window.SWORD_PACK&&window.SWORD_PACK[pref+file])||asset(src);});}
 async function loadPack(p){
   const q='?v=3';
-  for(const d of ['front','right','back','left','f34','b34']) p.dir[d]=await loadImg(p.base+'dir_'+d+'.png'+q);
   const groups={idle:4,walk:3,run:3,atk1:3,atk2:3,skill:1,hurt:4,die:2,jump:4};
+  const jobs=[];
+  for(const d of ['front','right','back','left','f34','b34']) jobs.push(loadImg(p.base+'dir_'+d+'.png'+q).then(im=>{p.dir[d]=im;}));
   for(const [g,n] of Object.entries(groups)){
     p.sets[g]=[];
-    for(let i=0;i<n;i++){const im=await loadImg(p.base+g+'_'+i+'.png'+q); if(im) p.sets[g].push(im);}
+    for(let i=0;i<n;i++){const idx=i;jobs.push(loadImg(p.base+g+'_'+idx+'.png'+q).then(im=>{if(im)p.sets[g][idx]=im;}));}
   }
+  await Promise.all(jobs);
+  for(const g of Object.keys(groups)) p.sets[g]=(p.sets[g]||[]).filter(Boolean);
   p.ready=!!p.dir.front&&p.sets.idle.length>0&&p.sets.walk.length>0;
   if(mode==='play'&&SPR===p) sprReady=p.ready;
 }
