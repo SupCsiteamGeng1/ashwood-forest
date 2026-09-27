@@ -193,7 +193,7 @@ document.querySelectorAll('.row button').forEach(b=>b.onclick=()=>{if(hero.pts<=
 document.querySelectorAll('.sk').forEach(el=>el.onclick=()=>{if(el.id==='btnSave')saveGame(true);else if(el.id==='btnC')toggleStats();else cast(+el.dataset.sk);});
 document.getElementById('chatBtn').onclick=()=>{document.getElementById('log').classList.toggle('open');};
 
-const CDN_SHA='ASSET_COMMIT';
+const CDN_SHA='ab649aa81618b01d895333c76e300acd58bce33e';
 function asset(rel){rel=String(rel).replace(/^\//,'');const host=location.hostname;if(host==='htmlpreview.github.io'){const path=rel.split('?')[0];return 'https://cdn.jsdelivr.net/gh/SupCsiteamGeng1/ashwood-forest@'+CDN_SHA+'/'+path;}return rel;}
 document.querySelectorAll('.pick').forEach(b=>{const img=b.querySelector('img');if(img)img.src=asset(b.dataset.cls==='m'?'sprites/portraits/male.png':'sprites/portraits/female.png');});
 const PACKS={
